@@ -8,7 +8,7 @@
 
 # production
 /public
-!public/index.html
+!/public/index.html
 
 # misc
 .DS_Store
