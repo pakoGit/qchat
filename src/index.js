@@ -1,10 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {Provider} from 'react-redux';
 
-const title = 'My Minimal React Webpack Babel Setup';
+import Home from './components/Home';
+import store from './redux/store';
 
 ReactDOM.render(
-  <div>{title}</div>,
+   <Provider store={store}>
+    <Home />
+  </Provider>,
   document.getElementById('app')
 );
 
