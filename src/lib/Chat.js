@@ -1,3 +1,4 @@
+import parser from "./parser";
 
 const options = {
     clientId: "lu4j0mnwfq5396d49exie7m0gvkvfk",
@@ -41,26 +42,53 @@ function connect(oauth) {
     };
 
     sock.onmessage = function (e) {
-        console.log('message', e.data.split(":").pop());
-        //sock.close();
-    };
+        const message = parser.msg(e.data);
+        console.log(message);
 
-    sock.onclose = function () {
-        console.log('close');
-    };
-}
+        if (!message.prefix) {
+            switch (message.command) {
+                case "PING":
+                    if (sock.readyState !== 2 && sock.readyState !== 3)
+                        sock.send("PONG");
 
-function join() {
-    sock.send(`JOIN midemik`);
+                    break;
+            }
+        }
+        else {
+            const params = message.params[1];
+
+
+            if (params) {
+                const msg = params.replace(/(\r\n|\n|\r)/gm, "");
+
+                if (msg.search(/Kappa|KappaPride/i) > -1)
+                    document.dispatchEvent(new CustomEvent("chat_spawn"));
+                else if (params.indexOf("!spawn") > -1)
+                    document.dispatchEvent(new CustomEvent("chat_spawn", { detail: msg.split(" ").pop() }));
+            }
+            //sock.close();
+        };
+
+        sock.onclose = function () {
+            console.log('close');
+        };
+    }
+
+    function join() {
+        sock.send(`JOIN midemik`);
+    }
 }
 
 const Chat = {
     init() {
-        auth();
+        const hash = document.location.hash;
+        if (hash.length > 1)
+            connect(document.location.hash.substring(1).split("&")[0].split("=")[1])
+        else
+            auth();
         //connect();
     },
     connect() {
-        console.log(document.location.hash);
         connect(document.location.hash.substring(1).split("&")[0].split("=")[1]);
     }
 }
